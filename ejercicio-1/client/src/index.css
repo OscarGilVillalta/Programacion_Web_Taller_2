@@ -1,7 +1,6 @@
 :root {
   --bg: #ffffff;
   --surface: #f7f5f0;
-  --surface-strong: #efece4;
   --ink: #0b0b0d;
   --muted: #6d6a64;
   --line: #e4e0d8;
@@ -9,25 +8,11 @@
   --crimson: #c24747;
   --crimson-strong: #d41935;
   --crimson-soft: rgba(194, 71, 71, 0.08);
-  --ink-soft: rgba(11, 11, 13, 0.06);
   --font-ui: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
   --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
   --shadow-soft:
     0 1px 0 rgba(11, 11, 13, 0.04), 0 24px 60px -48px rgba(11, 11, 13, 0.4);
-
-  --text: var(--muted);
-  --text-h: var(--ink);
-  --border: var(--line);
-  --code-bg: var(--surface);
-  --accent: var(--crimson);
-  --accent-bg: var(--crimson-soft);
-  --accent-border: rgba(194, 71, 71, 0.42);
-  --social-bg: var(--surface);
-  --shadow: var(--shadow-soft);
-  --sans: var(--font-ui);
-  --heading: var(--font-ui);
-  --mono: var(--font-mono);
 
   color-scheme: light;
   font: 16px/1.6 var(--font-ui);

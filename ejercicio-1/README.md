@@ -37,8 +37,7 @@ No se agregaron dependencias npm nuevas para la interfaz.
 ejercicio-1/
 ├─ client/
 │  ├─ public/
-│  │  ├─ favicon.svg
-│  │  └─ icons.svg
+│  │  └─ favicon.svg
 │  ├─ src/
 │  │  ├─ api/
 │  │  │  └─ temperatura.js
@@ -271,7 +270,7 @@ Cambios realizados en `client/src/hooks/useReactor.js`:
 - Prevención de envíos duplicados.
 - Prevención de reinicios durante un envío y de envíos durante un reinicio.
 - Bloqueo de nuevos intentos después de estabilizar.
-- Creación de cada intento con `id`, número, valor, estado, mensaje y fecha.
+- Creación de cada intento con `id`, número, valor, estado y mensaje.
 - `crearId` se reescribió con pasos explícitos para que el UUID y el fallback sean más legibles.
 - Los filtros usan los predicados `esIntentoFallido` y `esIntentoGanador`, y el estado `estabilizado` se centralizó en `ESTADO_ESTABILIZADO`.
 - Historial en orden descendente, mostrando primero el intento más reciente.
@@ -363,6 +362,15 @@ Verificación manual recomendada:
 5. Comprobar el panel de victoria y el resumen de intentos.
 6. Pulsar **Reiniciar reactor** y verificar que vuelve el formulario con el historial vacío.
 
+### Fase 7 — Limpieza de elementos sin uso
+
+- Se eliminaron `client/src/assets/hero.png`, `client/src/assets/react.svg`, `client/src/assets/vite.svg` y `client/public/icons.svg` porque no tenían referencias.
+- Se eliminó la carpeta `client/src/assets` al quedar vacía.
+- Se quitó `creadoEn` del historial porque la hora ya no se muestra en la interfaz.
+- Se eliminaron las variables CSS heredadas de la plantilla que no se utilizaban.
+- Se quitó la prop `estabilizado` de `TemperatureForm`, ya que el formulario solo se renderiza cuando el reactor no está estabilizado.
+- La build se regeneró sin los assets eliminados.
+
 ## Cambios archivo por archivo
 
 ### Backend
@@ -381,6 +389,7 @@ Verificación manual recomendada:
 | `client/vite.config.js` | Proxy del frontend hacia la API. |
 | `client/index.html` | Idioma, metadatos, favicon y fuentes. |
 | `client/public/favicon.svg` | Nuevo favicon del reactor. |
+| `client/src/assets/*`, `client/public/icons.svg` | Eliminados por no tener referencias. |
 | `client/src/index.css` | Tokens de diseño, reset, fondo y accesibilidad. |
 | `client/src/api/temperatura.js` | Cliente HTTP para ajustar y reiniciar. |
 | `client/src/hooks/useReactor.js` | Estado, validación, historial, victoria, reinicio y bloqueo de acciones simultáneas. |
