@@ -54,7 +54,6 @@ function App() {
                 onReiniciar={reiniciar}
                 enviando={enviando}
                 reiniciando={reiniciando}
-                estabilizado={estabilizado}
                 error={error}
               />
             )}

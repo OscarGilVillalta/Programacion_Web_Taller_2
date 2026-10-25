@@ -84,7 +84,6 @@ export function useReactor() {
           valor: temperatura,
           estado: data.status,
           mensaje: data.message ?? '',
-          creadoEn: new Date().toISOString(),
         },
         ...previos,
       ])

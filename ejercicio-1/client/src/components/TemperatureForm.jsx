@@ -5,10 +5,9 @@ function TemperatureForm({
   onReiniciar,
   enviando,
   reiniciando,
-  estabilizado,
   error,
 }) {
-  const disabled = enviando || reiniciando || estabilizado
+  const disabled = enviando || reiniciando
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -64,11 +63,7 @@ function TemperatureForm({
 
         <div className="form-actions">
           <button className="button-primary" type="submit" disabled={disabled}>
-            {enviando
-              ? 'Ajustando…'
-              : estabilizado
-                ? 'Núcleo estabilizado'
-                : 'Enviar intento'}
+            {enviando ? 'Ajustando…' : 'Enviar intento'}
           </button>
 
           <button
