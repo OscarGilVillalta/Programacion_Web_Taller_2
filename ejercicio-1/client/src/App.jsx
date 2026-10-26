@@ -1,3 +1,4 @@
+import { Card, CardText, Col, Container, Row } from 'reactstrap'
 import FeedbackBanner from './components/FeedbackBanner.jsx'
 import HistoryList from './components/HistoryList.jsx'
 import ReactorHeader from './components/ReactorHeader.jsx'
@@ -25,7 +26,7 @@ function App() {
   } = useReactor()
 
   return (
-    <div className="app-shell">
+    <Container fluid className="app-shell">
       <ReactorHeader
         estabilizado={estabilizado}
         estadoNucleo={estadoNucleo}
@@ -34,8 +35,8 @@ function App() {
       />
 
       <main className="main">
-        <div className="console-grid">
-          <div className="console-column">
+        <Row className="console-grid g-0">
+          <Col className="console-column">
             <FeedbackBanner mensaje={mensaje} error={error} />
 
             {estabilizado ? (
@@ -57,19 +58,27 @@ function App() {
                 error={error}
               />
             )}
-          </div>
+          </Col>
 
-          <HistoryList historial={historial} />
-        </div>
+          <Col>
+            <HistoryList historial={historial} />
+          </Col>
+        </Row>
 
-        <div className="ticks" aria-hidden="true" />
+        <Card className="ticks" aria-hidden="true" />
       </main>
 
-      <footer className="footer">
-        <p>Los datos del historial se pierden al recargar la página.</p>
-        <p className="footer__meta">Reactor / Sesión local</p>
-      </footer>
-    </div>
+      <Row tag="footer" className="footer g-0">
+        <Col xs={12} md="auto">
+          <CardText className="footer__note">
+            Los datos del historial se pierden al recargar la página.
+          </CardText>
+        </Col>
+        <Col xs={12} md="auto">
+          <CardText className="footer__meta">Reactor / Sesión local</CardText>
+        </Col>
+      </Row>
+    </Container>
   )
 }
 
