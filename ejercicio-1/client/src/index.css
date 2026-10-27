@@ -44,6 +44,7 @@ body {
   margin: 0;
   min-height: 100svh;
   color: var(--ink);
+  font: 16px/1.6 var(--font-ui);
   background:
     radial-gradient(circle at 12% -8%, rgba(194, 71, 71, 0.06), transparent 30rem),
     radial-gradient(circle at 92% 6%, rgba(11, 11, 13, 0.035), transparent 26rem),

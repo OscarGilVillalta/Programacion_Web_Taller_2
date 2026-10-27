@@ -1,3 +1,14 @@
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
+  ListGroup,
+  ListGroupItem,
+} from 'reactstrap'
+
 function VictoryPanel({
   intentoGanador,
   intentos,
@@ -6,46 +17,52 @@ function VictoryPanel({
   onReiniciar,
 }) {
   return (
-    <section
+    <Card
       className="victory-panel"
       aria-labelledby="victory-title"
       aria-live="polite"
     >
-      <span className="victory-panel__mark" aria-hidden="true">
-        ✓
-      </span>
-      <p className="eyebrow">Protocolo completado</p>
-      <h2 id="victory-title">Reactor estabilizado</h2>
-      <p className="victory-panel__copy">
-        {intentoGanador
-          ? `La temperatura de ${intentoGanador.valor} °C estabilizó el núcleo.`
-          : 'El núcleo ha alcanzado la temperatura ideal.'}
-      </p>
+      <CardBody>
+        <Badge color="" className="victory-panel__mark" aria-hidden="true">
+          ✓
+        </Badge>
+        <p className="eyebrow">Protocolo completado</p>
+        <CardTitle tag="h2" id="victory-title">
+          Reactor estabilizado
+        </CardTitle>
+        <CardText className="victory-panel__copy">
+          {intentoGanador
+            ? `La temperatura de ${intentoGanador.valor} °C estabilizó el núcleo.`
+            : 'El núcleo ha alcanzado la temperatura ideal.'}
+        </CardText>
 
-      <dl className="victory-panel__metrics">
-        <div>
-          <dt>Intentos</dt>
-          <dd>{intentos}</dd>
-        </div>
-        <div>
-          <dt>Fallidos</dt>
-          <dd>{fallidos}</dd>
-        </div>
-        <div>
-          <dt>Temperatura</dt>
-          <dd>{intentoGanador ? `${intentoGanador.valor} °C` : '—'}</dd>
-        </div>
-      </dl>
+        <ListGroup horizontal className="victory-panel__metrics">
+          <ListGroupItem className="victory-panel__metric">
+            <span className="victory-panel__metric-label">Intentos</span>
+            <span className="victory-panel__metric-value">{intentos}</span>
+          </ListGroupItem>
+          <ListGroupItem className="victory-panel__metric">
+            <span className="victory-panel__metric-label">Fallidos</span>
+            <span className="victory-panel__metric-value">{fallidos}</span>
+          </ListGroupItem>
+          <ListGroupItem className="victory-panel__metric">
+            <span className="victory-panel__metric-label">Temperatura</span>
+            <span className="victory-panel__metric-value">
+              {intentoGanador ? `${intentoGanador.valor} °C` : '—'}
+            </span>
+          </ListGroupItem>
+        </ListGroup>
 
-      <button
-        className="button-primary"
-        type="button"
-        onClick={onReiniciar}
-        disabled={reiniciando}
-      >
-        {reiniciando ? 'Reiniciando…' : 'Reiniciar reactor'}
-      </button>
-    </section>
+        <Button
+          className="button-primary"
+          type="button"
+          onClick={onReiniciar}
+          disabled={reiniciando}
+        >
+          {reiniciando ? 'Reiniciando…' : 'Reiniciar reactor'}
+        </Button>
+      </CardBody>
+    </Card>
   )
 }
 

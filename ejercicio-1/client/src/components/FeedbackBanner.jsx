@@ -1,3 +1,5 @@
+import { Alert } from 'reactstrap'
+
 function FeedbackBanner({ mensaje, error }) {
   if (!mensaje && !error) {
     return null
@@ -7,9 +9,10 @@ function FeedbackBanner({ mensaje, error }) {
   const texto = error || mensaje
 
   return (
-    <div
+    <Alert
+      color={esError ? 'danger' : 'warning'}
+      fade={false}
       className={`feedback-banner${esError ? ' feedback-banner--error' : ''}`}
-      role={esError ? 'alert' : 'status'}
       aria-live={esError ? 'assertive' : 'polite'}
     >
       <span className="feedback-banner__icon" aria-hidden="true">
@@ -26,7 +29,7 @@ function FeedbackBanner({ mensaje, error }) {
           {texto}
         </p>
       </div>
-    </div>
+    </Alert>
   )
 }
 

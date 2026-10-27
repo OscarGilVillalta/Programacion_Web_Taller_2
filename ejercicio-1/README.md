@@ -17,13 +17,13 @@ La aplicación se encuentra implementada y el backend responde correctamente. Se
 
 | Capa | Tecnología |
 | --- | --- |
-| Frontend | React 19.3, Vite 8.3, CSS puro |
+| Frontend | React 19.3, Vite 8.3, Reactstrap 9.2, Bootstrap 5.3, CSS puro |
 | Backend | Node.js, Express 5.3, CORS |
 | Lint | Oxlint |
 | Tipografías | Poppins y Cinzel desde Google Fonts |
 | Persistencia | En memoria (backend) y estado de React (frontend) |
 
-No se agregaron dependencias npm nuevas para la interfaz.
+La interfaz usa Reactstrap y Bootstrap como base de componentes, con estilos propios para conservar la identidad visual del reactor.
 
 ## Requisitos
 
@@ -339,6 +339,23 @@ Cambios realizados en `client/src/App.css`:
 - Estilos de foco, hover y botones deshabilitados.
 - Ajuste final del separador inferior con `margin-top: auto` para mantenerlo junto al footer.
 
+### Fase 5.1 — Migración a Reactstrap y Bootstrap
+
+Se incorporaron Reactstrap y Bootstrap para que la interfaz use componentes reutilizables sin perder el diseño definido.
+
+Cambios realizados:
+
+- Se instalaron `reactstrap@9.2.3` y `bootstrap@5.3.8`.
+- `client/src/main.jsx` importa `bootstrap/dist/css/bootstrap.min.css` antes de `index.css`.
+- `ReactorHeader` usa `Navbar`, `NavbarBrand`, `Badge`, `Row`, `Col`, `ListGroup` y `Card`.
+- `TemperatureForm` usa `Card`, `CardBody`, `CardTitle`, `Form`, `FormGroup`, `Label`, `InputGroup`, `Input`, `InputGroupText`, `FormText` y `Button`.
+- `FeedbackBanner` usa `Alert` con `fade={false}` para conservar la animación propia.
+- `HistoryList` usa `Card`, `CardBody`, `CardTitle`, `Badge`, `ListGroup`, `ListGroupItem` y `Alert`.
+- `VictoryPanel` usa `Card`, `CardBody`, `CardTitle`, `CardText`, `Badge`, `ListGroup`, `ListGroupItem` y `Button`.
+- `App` usa `Container`, `Row`, `Col`, `Card` y `CardText`.
+- El SVG del núcleo se conserva porque no existe un componente Reactstrap equivalente.
+- `App.css` añade overrides para las clases de Bootstrap (`card`, `alert`, `badge`, `btn`, `form-control`, `list-group-item`) y mantiene la paleta, tipografías, animaciones y responsive.
+
 ### Fase 6 — Verificación
 
 Se ejecutaron las siguientes comprobaciones:
@@ -390,17 +407,18 @@ Verificación manual recomendada:
 | `client/index.html` | Idioma, metadatos, favicon y fuentes. |
 | `client/public/favicon.svg` | Nuevo favicon del reactor. |
 | `client/src/assets/*`, `client/public/icons.svg` | Eliminados por no tener referencias. |
-| `client/src/index.css` | Tokens de diseño, reset, fondo y accesibilidad. |
+| `client/src/index.css` | Tokens de diseño, reset, fondo, tipografía base y accesibilidad. |
 | `client/src/api/temperatura.js` | Cliente HTTP para ajustar y reiniciar. |
 | `client/src/hooks/useReactor.js` | Estado, validación, historial, victoria, reinicio y bloqueo de acciones simultáneas. |
-| `client/src/components/ReactorHeader.jsx` | Cabecera y métricas. |
+| `client/src/components/ReactorHeader.jsx` | Cabecera y métricas con Navbar, Badge, Row, Col, ListGroup y Card. |
 | `client/src/components/ReactorCore.jsx` | Núcleo SVG con estados. |
-| `client/src/components/TemperatureForm.jsx` | Formulario controlado con envío y reinicio. |
-| `client/src/components/FeedbackBanner.jsx` | Advertencias y errores. |
-| `client/src/components/HistoryList.jsx` | Historial completo. |
-| `client/src/components/VictoryPanel.jsx` | Pantalla de victoria y reinicio. |
-| `client/src/App.jsx` | Composición principal y conexión del reinicio durante la partida. |
-| `client/src/App.css` | Diseño claro, responsive y estados visuales. |
+| `client/src/components/TemperatureForm.jsx` | Formulario controlado con componentes de formulario de Reactstrap. |
+| `client/src/components/FeedbackBanner.jsx` | Advertencias y errores con Alert. |
+| `client/src/components/HistoryList.jsx` | Historial completo con Card, ListGroup y Badge. |
+| `client/src/components/VictoryPanel.jsx` | Pantalla de victoria con Card, ListGroup y Button. |
+| `client/src/App.jsx` | Composición principal con Container, Row, Col y Card. |
+| `client/src/App.css` | Diseño claro, responsive, overrides de Bootstrap y estados visuales. |
+| `client/package.json` | Dependencias Reactstrap y Bootstrap. |
 
 ## Decisiones de diseño
 
@@ -408,7 +426,7 @@ Verificación manual recomendada:
 - **Team Cherry como referencia:** se tomaron recursos como la tipografía serif de título, los separadores finos, el uso de espacio negativo y los detalles ornamentales, sin copiar contenido.
 - **Historial completo:** se decidió conservar todos los intentos para que el usuario pueda analizar su estrategia y no solo ver el último resultado.
 - **Estado centralizado:** la lógica vive en `useReactor`; los componentes se mantienen presentacionales.
-- **Sin dependencias extra:** se usó CSS puro y SVG para evitar sumar peso innecesario.
+- **Componentes reutilizables:** se adoptaron Reactstrap y Bootstrap para formularios, alertas, tarjetas, listas y layout, manteniendo un tema propio.
 - **Accesibilidad:** etiquetas asociadas, foco visible, `aria-live`, mensajes de error semánticos y respeto por movimiento reducido.
 - **Mensajes en español:** toda la interfaz y las respuestas visibles al usuario están en español.
 
