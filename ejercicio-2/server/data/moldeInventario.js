@@ -12,4 +12,6 @@ let cargaNave = {
   total: 0.00
 };
 
-module.exports = { inventario, cargaNave };
+let timerLanzamiento = Date.now();
+
+module.exports = { inventario, cargaNave, timerLanzamiento };

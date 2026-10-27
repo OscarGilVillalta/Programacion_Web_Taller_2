@@ -1,25 +1,60 @@
-const {inventario, cargaNave} = require ('../data/moldeInventario.js');
+const {inventario, cargaNave, timerLanzamiento} = require ('../data/moldeInventario.js');
 const helper = require ('../utils/helper.js');
 
+const forzarCierreSesion = () => {
+  // Devolver todo el stock a la base espacial
+    data.cargaNave.itemsCargados.forEach(item => {
+        const suministro = data.inventario.find(i => i.id === item.id);
+        if (suministro) suministro.stock += item.cantidad;
+    });
+  // Resetear la nave
+    data.cargaNave.itemsCargados = [];
+    data.cargaNave.total = 0.00;
+};
+
 const actualizarTotalCarga = () => {
-  cargaNave.total = cargaNave.itemsCargados.reduce((sum, item) => {
-    const suministro = inventario.find(i => i.id === item.id);
-    return sum + (suministro ? suministro.precio * item.cantidad : 0);
-  }, 0);
+    cargaNave.total = cargaNave.itemsCargados.reduce((sum, item) => {
+        const suministro = inventario.find(i => i.id === item.id);
+        return sum + (suministro ? suministro.precio * item.cantidad : 0);
+    }, 0);
 };
 
 // Listar suministro
 const listarInventario = (req, res) => {
+
+    if (!helper.tiempoLanzamientoActivo()) {
+    forzarCierreSesion();
+    return res.status(401).json({ 
+        mensaje: "Ventana de lanzamiento cerrada. Sesión expirada. Inicie nuevamente de inmediato para una nueva ventana." 
+    });
+    }
+
     res.status(200).json(inventario);
 }
 
 // Mostrar carga actual
 const mostrarCarga = (req, res) => {
+
+    if (!helper.tiempoLanzamientoActivo()) {
+    forzarCierreSesion();
+    return res.status(401).json({ 
+        mensaje: "Ventana de lanzamiento cerrada. Sesión expirada. Inicie nuevamente de inmediato para una nueva ventana." 
+    });
+    }
+
     res.status(200).json(cargaNave)
 }
 
 // Agregar carga
 const agregarCarga = (req, res) => {
+
+    if (!helper.tiempoLanzamientoActivo()) {
+    forzarCierreSesion();
+    return res.status(401).json({ 
+        mensaje: "Ventana de lanzamiento cerrada. Sesión expirada. Inicie nuevamente de inmediato para una nueva ventana." 
+    });
+    }
+
     const { equipoId, cantidad } = req.body;
     const suministro = inventario.find(i => i.id === equipoId);
 
@@ -51,6 +86,14 @@ const agregarCarga = (req, res) => {
 
 // Agregar mas unidades de un item en carga
 const actualizarUnidades = (req, res) => {
+
+    if (!helper.tiempoLanzamientoActivo()) {
+    forzarCierreSesion();
+    return res.status(401).json({ 
+        mensaje: "Ventana de lanzamiento cerrada. Sesión expirada. Inicie nuevamente de inmediato para una nueva ventana." 
+    });
+    }
+
     const id = parseInt(req.params.id);
     const { cantidad } = req.body;
   
@@ -84,6 +127,14 @@ const actualizarUnidades = (req, res) => {
 
 // Eliminar un item de la carga de la nave
 const eliminarCarga = (req, res) => {
+
+    if (!helper.tiempoLanzamientoActivo()) {
+    forzarCierreSesion();
+    return res.status(401).json({ 
+        mensaje: "Ventana de lanzamiento cerrada. Sesión expirada. Inicie nuevamente de inmediato para una nueva ventana." 
+    });
+    }
+    
     const id = parseInt(req.params.id);
     const suministro = inventario.find(i => i.id === id);
     const itemEnCarga = cargaNave.itemsCargados.find(i => i.id === id);
