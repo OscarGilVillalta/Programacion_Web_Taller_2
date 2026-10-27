@@ -1,9 +1,6 @@
-import React from 'react';
-import { ListGroup, ListGroupItem, Button, ButtonGroup } from 'reactstrap';
-
 const BodegaCarga = ({
-  itemsCargados,
-  inventario,
+  itemsCargados = [],
+  inventario = [],
   onActualizarUnidades,
   onEliminarItem,
   onConfirmarCarga,
@@ -14,95 +11,149 @@ const BodegaCarga = ({
   bloqueado,
   misionConfirmada,
 }) => {
-  const controlesBloqueados = bloqueado || misionConfirmada;
+  const controlesBloqueados = bloqueado || misionConfirmada
+
+  const totalCarga = itemsCargados.reduce((total, item) => {
+    const suministro = inventario.find((elemento) => elemento.id === item.id)
+
+    return suministro ? total + suministro.precio * item.cantidad : total
+  }, 0)
 
   return (
-    <div className="bg-light p-3 rounded border h-100">
-      <h4 className="text-secondary border-bottom pb-2 mb-3">Bodega de Carga</h4>
+    <section className="panel panel--cargo" aria-labelledby="cargo-title">
+      <div className="panel__heading panel__heading--row">
+        <div>
+          <p className="eyebrow">Transbordador / Manifiesto</p>
+          <h2 id="cargo-title">Bodega de carga</h2>
+        </div>
+        <p className="panel__count">
+          {itemsCargados.length} {itemsCargados.length === 1 ? 'ítem' : 'ítems'}
+        </p>
+      </div>
 
       {itemsCargados.length === 0 ? (
-        <p className="text-muted text-center py-4">
-          {misionConfirmada
-            ? "Carga confirmada. La nave está autorizada a despegar."
-            : "La nave se encuentra vacía. Añade suministros en el catálogo."}
-        </p>
+        <div className="cargo-empty">
+          <span className="cargo-empty__mark" aria-hidden="true">
+            ◇
+          </span>
+          <p>
+            {misionConfirmada
+              ? 'Carga confirmada. La nave está autorizada a despegar.'
+              : 'La nave está vacía. Añade suministros desde el catálogo.'}
+          </p>
+        </div>
       ) : (
-        <ListGroup>
+        <ul className="cargo-list">
           {itemsCargados.map((item) => {
-            const suministro = inventario.find(i => i.id === item.id);
-            if (!suministro) return null;
+            const suministro = inventario.find((elemento) => elemento.id === item.id)
 
-            const estaCargando = cargandoId === item.id;
-            const hayStockParaAumentar = suministro.stock > 0;
+            if (!suministro) return null
+
+            const estaCargando = cargandoId === item.id
+            const hayStockParaAumentar = suministro.stock > 0
 
             return (
-              <ListGroupItem key={item.id} className="d-flex flex-column gap-2 py-3 shadow-sm mb-2 rounded">
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="fw-bold">{suministro.nombre}</span>
-                  <span className="badge bg-dark rounded-pill">x{item.cantidad}</span>
+              <li className="cargo-row" key={item.id}>
+                <div className="cargo-row__head">
+                  <span className="cargo-row__name">{suministro.nombre}</span>
+                  <span className="cargo-row__qty">×{item.cantidad}</span>
                 </div>
 
-                <div className="d-flex justify-content-between align-items-center mt-1">
-                  {/* Control de unidades compacto */}
-                  <ButtonGroup size="sm">
-                    <Button
-                      color="secondary"
-                      outline
+                <div className="cargo-row__meta">
+                  <span>{suministro.precio.toFixed(2)} Cr / unidad</span>
+                  <span>{(suministro.precio * item.cantidad).toFixed(2)} Cr</span>
+                </div>
+
+                <div className="cargo-row__actions">
+                  <div className="quantity-control">
+                    <button
+                      type="button"
+                      className="quantity-control__button"
                       disabled={estaCargando || controlesBloqueados}
+                      aria-label={`Quitar una unidad de ${suministro.nombre}`}
                       onClick={() => onActualizarUnidades(item.id, item.cantidad - 1)}
                     >
-                      -
-                    </Button>
-                    <Button
-                      color="secondary"
-                      outline
-                      disabled={estaCargando || controlesBloqueados || !hayStockParaAumentar}
-                      title={!hayStockParaAumentar ? "No hay más stock disponible en la base" : undefined}
+                      −
+                    </button>
+                    <span
+                      className="quantity-control__value"
+                      aria-live="polite"
+                      aria-label={`${item.cantidad} unidades cargadas`}
+                    >
+                      {item.cantidad}
+                    </span>
+                    <button
+                      type="button"
+                      className="quantity-control__button"
+                      disabled={
+                        estaCargando || controlesBloqueados || !hayStockParaAumentar
+                      }
+                      title={
+                        hayStockParaAumentar
+                          ? 'Añadir una unidad'
+                          : 'No hay más stock disponible en la base'
+                      }
+                      aria-label={`Añadir una unidad de ${suministro.nombre}`}
                       onClick={() => onActualizarUnidades(item.id, item.cantidad + 1)}
                     >
                       +
-                    </Button>
-                  </ButtonGroup>
+                    </button>
+                  </div>
 
-                  <Button
-                    color="danger"
-                    outline
-                    size="sm"
+                  <button
+                    type="button"
+                    className="button-danger"
                     disabled={estaCargando || controlesBloqueados}
+                    title="Quitar todo el suministro de la bodega"
                     onClick={() => onEliminarItem(item.id)}
                   >
                     Desembarcar
-                  </Button>
+                  </button>
                 </div>
-              </ListGroupItem>
-            );
+              </li>
+            )
           })}
-        </ListGroup>
+        </ul>
       )}
 
-      {misionConfirmada ? (
-        <Button
-          color="primary"
-          block
-          className="mt-3"
-          disabled={bloqueado}
-          onClick={onReiniciarSesion}
-        >
-          {reiniciando ? "Iniciando..." : "Nueva misión"}
-        </Button>
-      ) : (
-        <Button
-          color="success"
-          block
-          className="mt-3"
-          disabled={itemsCargados.length === 0 || controlesBloqueados || confirmando}
-          onClick={onConfirmarCarga}
-        >
-          {confirmando ? "Confirmando..." : "Confirmar cargamento"}
-        </Button>
+      {itemsCargados.length > 0 && (
+        <div className="cargo-total">
+          <span>Total de carga</span>
+          <strong>{totalCarga.toFixed(2)} Cr</strong>
+        </div>
       )}
-    </div>
-  );
-};
 
-export default BodegaCarga;
+      <div className="cargo-actions">
+        {misionConfirmada ? (
+          <button
+            type="button"
+            className="button-primary"
+            disabled={bloqueado}
+            onClick={onReiniciarSesion}
+          >
+            {reiniciando ? 'Iniciando...' : 'Nueva misión'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="button-primary"
+            disabled={
+              itemsCargados.length === 0 || controlesBloqueados || confirmando
+            }
+            onClick={onConfirmarCarga}
+          >
+            {confirmando ? 'Confirmando...' : 'Confirmar cargamento'}
+          </button>
+        )}
+      </div>
+
+      {!misionConfirmada && (
+        <p className="cargo-note">
+          La confirmación descuenta los créditos y cierra la misión.
+        </p>
+      )}
+    </section>
+  )
+}
+
+export default BodegaCarga

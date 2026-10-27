@@ -1,49 +1,92 @@
-import React from 'react';
-import { Navbar, NavbarBrand, Badge, UncontrolledAlert } from 'reactstrap';
+import MissionPatch from './MissionPatch'
 
-const HeaderMision = ({ creditos, total, error, onDismissError, tiempo }) => {
-  // Formatea los segundos totales en formato MM:SS
-  const formatearTiempo = (segundosTotales) => {
-    const minutos = Math.floor(segundosTotales / 60);
-    const segundos = segundosTotales % 60;
-    return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-  };
+const ETIQUETAS_ESTADO = {
+  preparacion: 'Sistema en línea',
+  alerta: 'Ventana por cerrar',
+  confirmada: 'Misión confirmada',
+  expirada: 'Ventana cerrada',
+}
 
-  const tiempoExpirando = tiempo < 60; // Parpadeo o color de alerta si queda menos de un minuto
+const formatearTiempo = (segundosTotales = 0) => {
+  const segundosSeguros = Math.max(0, Math.floor(segundosTotales))
+  const minutos = Math.floor(segundosSeguros / 60)
+  const segundos = segundosSeguros % 60
+
+  return `${minutos.toString().padStart(2, '0')}:${segundos
+    .toString()
+    .padStart(2, '0')}`
+}
+
+function HeaderMision({
+  creditos = 0,
+  total = 0,
+  tiempo = 0,
+  misionConfirmada = false,
+  sesionExpirada = false,
+}) {
+  const estado = sesionExpirada
+    ? 'expirada'
+    : misionConfirmada
+      ? 'confirmada'
+      : tiempo < 60
+        ? 'alerta'
+        : 'preparacion'
 
   return (
-    <div className="mb-4">
-      {error && (
-        <UncontrolledAlert color="warning" toggle={onDismissError} className="mb-3">
-          <strong>¡Violación de Restricción de Misión!</strong> {error}
-        </UncontrolledAlert>
-      )}
-
-      <Navbar color="dark" dark expand="md" className="rounded px-4 shadow">
-        <NavbarBrand href="/">Mision de carga de AstroLogistics</NavbarBrand>
-        
-        <div className="ms-auto d-flex align-items-center gap-4 text-white">
-          {/* CRONÓMETRO VISUAL */}
-          <div className="d-flex align-items-center gap-2 border border-secondary px-3 py-1 rounded bg-black">
-            <span className="text-muted small text-uppercase">Tiempo:</span>
-            <span className={`fw-bold fs-5 ${tiempoExpirando ? 'text-danger animate-pulse' : 'text-warning'}`} style={{ fontFamily: 'monospace' }}>
-              {formatearTiempo(tiempo)}
-            </span>
-          </div>
-
-          <span>
-            Créditos disponibles: <strong>{creditos} Cr</strong>
+    <header className="mission-header">
+      <div className="topbar">
+        <div className="brand">
+          <span className="brand__logo" aria-hidden="true">
+            <img src="/favicon.svg" alt="" />
           </span>
-          <span>
-            Costo total de Carga:{' '}
-            <Badge color="light" pill className="fs-6 px-3 text-dark">
-              {total} Cr
-            </Badge>
+          <span className="brand__name">Cherry Team</span>
+          <span className="brand__divider" aria-hidden="true">
+            /
           </span>
+          <span className="brand__tag">AstroLogistics · Misión de carga</span>
         </div>
-      </Navbar>
-    </div>
-  );
-};
 
-export default HeaderMision;
+        <p className={`status status--${estado}`}>
+          <span className="status__dot" aria-hidden="true" />
+          {ETIQUETAS_ESTADO[estado]}
+        </p>
+      </div>
+
+      <div className="hero">
+        <div className="hero__copy">
+          <p className="eyebrow">AstroLogistics / Protocolo de lanzamiento</p>
+          <h1 className="hero__title">Misión de carga</h1>
+          <p className="hero__lead">
+            Selecciona suministros de la base, controla el presupuesto y confirma
+            el manifiesto antes de que se cierre la ventana de lanzamiento.
+          </p>
+
+          <dl className="hero__metrics">
+            <div className={`hero__metric${estado === 'alerta' ? ' hero__metric--alerta' : ''}`}>
+              <dt>Ventana</dt>
+              <dd>{formatearTiempo(tiempo)}</dd>
+            </div>
+            <div className="hero__metric">
+              <dt>Créditos</dt>
+              <dd>
+                {creditos} <span>Cr</span>
+              </dd>
+            </div>
+            <div className="hero__metric">
+              <dt>Carga actual</dt>
+              <dd>
+                {total} <span>Cr</span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="hero__visual">
+          <MissionPatch estado={estado} />
+        </div>
+      </div>
+    </header>
+  )
+}
+
+export default HeaderMision

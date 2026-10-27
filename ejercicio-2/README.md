@@ -1,6 +1,8 @@
-# AstroLogistics — Misión de carga
+# Cherry Team · AstroLogistics — Misión de carga
 
-Aplicación web full stack para preparar la carga de un transbordador espacial dentro de una ventana de lanzamiento de 5 minutos. El usuario consulta el catálogo de la base, agrega suministros a la nave, ajusta cantidades, desembarca ítems y confirma el cargamento antes de que el temporizador llegue a cero.
+Aplicación web full stack desarrollada por **Cherry Team** para preparar la carga de un transbordador espacial dentro de una ventana de lanzamiento de 5 minutos. El usuario consulta el catálogo de la base, agrega suministros a la nave, ajusta cantidades, desembarca ítems y confirma el cargamento antes de que el temporizador llegue a cero.
+
+La interfaz usa un tema claro editorial: Poppins para la interfaz, Cinzel para los títulos, métricas en tipografía monoespaciada y un acento carmesí. El logo de `favicon.svg` se usa en la cabecera y en el parche de misión del hero.
 
 El proyecto está dividido en dos aplicaciones:
 
@@ -13,7 +15,7 @@ El proyecto está dividido en dos aplicaciones:
 
 ## Estado del proyecto
 
-La aplicación arranca, compila y los flujos principales funcionan de punta a punta. Las fases 1, 2 y 3 de corrección están completadas:
+La aplicación arranca, compila y los flujos principales funcionan de punta a punta. Las fases 1, 2, 3 y 4 están completadas:
 
 - `POST /api/sesion/reiniciar` está registrado y el botón **Iniciar Nueva Misión** funciona.
 - El temporizador se reinicia correctamente tras la expiración de los 5 minutos.
@@ -28,6 +30,7 @@ La aplicación arranca, compila y los flujos principales funcionan de punta a pu
 - El botón `+` de la bodega se deshabilita cuando no queda stock disponible en la base.
 - Se eliminaron los restos de la plantilla de Vite y se corrigieron `index.html` e `index.css`.
 - `server/package.json` incluye los scripts `dev` y `test`; hay 13 tests de integración de la API con `node:test`.
+- El frontend tiene una identidad visual propia de Cherry Team: cabecera editorial, hero con parche de misión, catálogo en tarjetas y bodega en panel lateral.
 - `npm run lint` termina sin advertencias.
 
 No quedan errores pendientes de las revisiones anteriores. Las limitaciones conocidas están en [Limitaciones](#limitaciones).
@@ -43,7 +46,7 @@ No quedan errores pendientes de las revisiones anteriores. Las limitaciones cono
 | Tests | `node:test` (runner integrado de Node.js) |
 | Lint | Oxlint 1.88 |
 | Persistencia | En memoria (no hay base de datos) |
-| Estilos | Bootstrap + CSS de la plantilla de Vite |
+| Estilos | Bootstrap (modal) + CSS propio (Cherry Team) |
 
 No se usa TypeScript.
 
@@ -63,20 +66,22 @@ No se usa TypeScript.
 ejercicio-2/
 ├─ client/
 │  ├─ public/
-│  │  └─ favicon.svg              # ícono propio de AstroLogistics
+│  │  └─ favicon.svg              # logo de AstroLogistics (cabecera y parche)
 │  ├─ src/
 │  │  ├─ api/
 │  │  │  └─ logistica.js          # cliente HTTP centralizado
 │  │  ├─ components/
 │  │  │  ├─ BodegaCarga.jsx
 │  │  │  ├─ CatalogoBase.jsx
-│  │  │  └─ HeaderMision.jsx
+│  │  │  ├─ HeaderMision.jsx      # topbar + hero de la misión
+│  │  │  └─ MissionPatch.jsx      # parche circular con el logo y anillos SVG
 │  │  ├─ hooks/
 │  │  │  ├─ useMision.js          # orquestador principal
 │  │  │  ├─ useOperacion.js       # bloqueo global de operaciones
 │  │  │  └─ useTemporizadorMision.js
+│  │  ├─ App.css                  # layout, tarjetas, bodega, banners y modal
 │  │  ├─ App.jsx                  # solo composición visual
-│  │  ├─ index.css
+│  │  ├─ index.css                # tokens, tipografías y reset
 │  │  └─ main.jsx
 │  ├─ .oxlintrc.json
 │  ├─ index.html
@@ -440,7 +445,7 @@ router.post('/carga/confirmar', confirmarCarga);
 
 ### `client/src/main.jsx`
 
-Monta `<App />` dentro de `StrictMode` e importa `index.css`. Bootstrap se importa desde `App.jsx`.
+Monta `<App />` dentro de `StrictMode` e importa, en este orden, Bootstrap, `index.css` y `App.jsx`. Ese orden permite que los tokens y el reset de `index.css` prevalezcan sobre los estilos base de Bootstrap; `App.css` se importa al final desde `App.jsx`.
 
 ### `client/src/App.jsx`
 
@@ -471,10 +476,11 @@ const {
 
 Responsabilidades de `App.jsx`:
 
-- Renderizar `HeaderMision`.
-- Mostrar el `Alert` verde con `exitoMensaje`.
-- Renderizar `CatalogoBase` y `BodegaCarga` con sus props.
-- Mostrar el modal de sesión expirada y el botón **Iniciar Nueva Misión**.
+- Renderizar `HeaderMision` con el estado de la misión y la ventana.
+- Mostrar los avisos de error y de éxito con el componente local `FeedbackBanner`.
+- Componer el layout `.app-shell` / `.console-grid` con `CatalogoBase` y `BodegaCarga`.
+- Renderizar el footer de Cherry Team.
+- Mostrar el modal de sesión expirada, estilizado con clases propias, y el botón **Iniciar nueva misión**.
 
 ### `client/src/hooks/`
 
@@ -496,8 +502,8 @@ Estado interno:
 | --- | --- |
 | `inventario` | Lista de suministros, inicialmente `[]`. |
 | `carga` | Objeto `{ creditos, itemsCargados, total, confirmada }`. Inicialmente con `creditos: 1000`. |
-| `error` | Mensaje mostrado por `HeaderMision`. |
-| `exitoMensaje` | Mensaje de confirmación mostrado en el `Alert` verde. |
+| `error` | Mensaje mostrado en el banner de error de `App.jsx`. |
+| `exitoMensaje` | Mensaje de confirmación mostrado en el banner de éxito. |
 
 Hooks compuestos:
 
@@ -656,26 +662,35 @@ export default defineConfig({
 
 ### `client/src/components/HeaderMision.jsx`
 
-- Recibe `creditos`, `total`, `error`, `onDismissError` y `tiempo`.
+- Recibe `creditos`, `total`, `tiempo`, `misionConfirmada` y `sesionExpirada`.
+- Compone la topbar de marca (`Cherry Team / AstroLogistics`) y el hero.
 - Formatea los segundos como `MM:SS`.
-- Cambia el color del cronómetro a rojo cuando quedan menos de 60 segundos.
-- Muestra los créditos y el costo total de la carga.
-- Muestra el error dentro de un `UncontrolledAlert` con el texto "¡Violación de Restricción de Misión!".
+- El chip de estado muestra `Sistema en línea`, `Ventana por cerrar`, `Misión confirmada` o `Ventana cerrada`.
+- Con menos de 60 segundos, el cronómetro pasa a carmesí.
+- Las métricas del hero muestran ventana, créditos y carga actual.
+- Delega el visual derecho en `MissionPatch`.
+
+### `client/src/components/MissionPatch.jsx`
+
+- Renderiza el logo `/favicon.svg` dentro de un parche circular.
+- Añade tres anillos SVG, marcas radiales, una órbita y dos satélites decorativos.
+- Cambia de estado con la misión: `preparacion`, `alerta`, `confirmada` o `expirada`.
+- Es puramente decorativo (`aria-hidden="true"`); el estado accesible vive en el chip de `HeaderMision`.
 
 ### `client/src/components/CatalogoBase.jsx`
 
 - Recibe `inventario`, `onAgregarItem`, `cargandoId`, `bloqueado` y `misionConfirmada`.
-- Renderiza una tarjeta por suministro con nombre, categoría, precio, stock y botón.
-- El badge de categoría ya muestra el valor real del backend.
+- Renderiza un grid de tarjetas editoriales con categoría, nombre, precio, stock y botón.
+- La categoría muestra el valor real del backend.
 - El botón se deshabilita si no hay stock, si hay una operación en curso o si la misión ya fue confirmada.
 - Cuando la misión está confirmada, el botón muestra **Misión confirmada**.
-- El botón `+` de la bodega se deshabilita cuando el stock en base llega a `0`; el servidor sigue validando el stock como última defensa.
 
 ### `client/src/components/BodegaCarga.jsx`
 
 - Recibe `itemsCargados`, `inventario`, `onActualizarUnidades`, `onEliminarItem`, `onConfirmarCarga`, `onReiniciarSesion`, `cargandoId`, `confirmando`, `reiniciando`, `bloqueado` y `misionConfirmada`.
-- Lista los ítems cargados con su nombre y cantidad.
-- Botones `-` y `+` para cambiar de a una unidad. El `+` se deshabilita si no queda stock disponible en la base.
+- Lista los ítems cargados con nombre, cantidad, precio unitario y subtotal.
+- Muestra el total de la carga cuando hay ítems.
+- Botones `-` y `+` para cambiar de a una unidad. El `+` se deshabilita si no queda stock disponible en la base; el servidor sigue validando el stock como última defensa.
 - Botón **Desembarcar** para eliminar el ítem.
 - Mientras la misión no está confirmada, muestra **Confirmar cargamento**, deshabilitado si la bodega está vacía, hay una operación en curso o la confirmación está en proceso.
 - Cuando la misión está confirmada, muestra **Nueva misión**, que llama a `reiniciarSesion`.
@@ -683,15 +698,25 @@ export default defineConfig({
 
 ### `client/src/index.css`
 
-- Define una base mínima: tipografía del sistema, `box-sizing`, `body` sin margen y `#root` con altura mínima.
-- No impone modo oscuro, ancho fijo ni `text-align: center`.
-- Bootstrap aporta los estilos de los componentes y de la mayoría de la interfaz.
+- Define los tokens de la identidad visual: fondo `#ffffff`, superficie `#f7f5f0`, tinta `#0b0b0d`, líneas `#e4e0d8` y acento carmesí `#c24747`.
+- Declara las familias `--font-ui` (Poppins), `--font-display` (Cinzel) y `--font-mono`.
+- Aplica un reset de `box-sizing`, márgenes, medios y controles.
+- Define fondo con gradientes radiales sutiles, foco visible, selección y respeto por `prefers-reduced-motion`.
+
+### `client/src/App.css`
+
+- Contiene el layout de la consola: `.app-shell`, `.topbar`, `.hero`, `.console-grid`, `.panel` y `.footer`.
+- Estiliza el parche de misión, las tarjetas del catálogo, la bodega, los controles de cantidad, los banners y el modal.
+- Usa una estética editorial de líneas finas, superficies claras y acento carmesí.
+- Incluye estados visuales para ventana por cerrar, misión confirmada y sesión expirada.
+- Tiene puntos de quiebre en `1024px` y `640px`; en escritorio la bodega queda sticky.
 
 ### `client/index.html`
 
 - `lang="es"`.
-- Título `AstroLogistics — Misión de carga`.
-- Meta descripción de la aplicación.
+- Título `Cherry Team | AstroLogistics — Misión de carga`.
+- Meta descripción, `theme-color` y `color-scheme="light"`.
+- Carga Cinzel y Poppins desde Google Fonts.
 - Favicon propio (`/favicon.svg`), sin referencias a la plantilla de Vite.
 
 ---
@@ -700,7 +725,7 @@ export default defineConfig({
 
 Ejemplo: agregar un tanque de oxígeno.
 
-1. El usuario pulsa **Añadir a la Nave** en `CatalogoBase`.
+1. El usuario pulsa **Añadir a la nave** en `CatalogoBase`.
 2. `useMision.agregarItem(101)` llama a `useOperacion.iniciar('agregar', 101)`.
 3. `api/logistica.js` envía `POST /api/carga/agregar` con `{ equipoId: 101, cantidad: 1 }`.
 4. En desarrollo, Vite recibe `/api` y lo reenvía al backend.
@@ -711,9 +736,9 @@ Ejemplo: agregar un tanque de oxígeno.
 
 Para aumentar unidades se usa `PUT /carga/actualizar-unidades/:id` con la cantidad absoluta (no la diferencia). El backend calcula `diferencia = nuevaCantidad - cantidadActual`. Si la cantidad llega a `0`, `useMision` delega en `eliminarItem` y se usa `DELETE /carga/eliminar/:id`.
 
-Para confirmar, el usuario pulsa **Confirmar cargamento** en `BodegaCarga`. `useMision.confirmarCarga()` llama a `POST /carga/confirmar`; el backend descuenta los créditos, vacía la carga y marca `confirmada: true`. El hook muestra el resumen en el `Alert` verde y refresca los datos. La UI queda bloqueada y la bodega ofrece **Nueva misión**.
+Para confirmar, el usuario pulsa **Confirmar cargamento** en `BodegaCarga`. `useMision.confirmarCarga()` llama a `POST /carga/confirmar`; el backend descuenta los créditos, vacía la carga y marca `confirmada: true`. El hook muestra el resumen en el banner de éxito y refresca los datos. La UI queda bloqueada y la bodega ofrece **Nueva misión**.
 
-Para abrir una nueva misión se usa **Nueva misión** o **Iniciar Nueva Misión** en el modal. El backend devuelve el stock de la carga no confirmada, restablece los créditos a `1000`, pone `confirmada: false` y reinicia el temporizador. El hook reinicia el reloj local y resincroniza con el backend.
+Para abrir una nueva misión se usa **Nueva misión** o **Iniciar nueva misión** en el modal. El backend devuelve el stock de la carga no confirmada, restablece los créditos a `1000`, pone `confirmada: false` y reinicia el temporizador. El hook reinicia el reloj local y resincroniza con el backend.
 
 Si la ventana expira, cualquier petición protegida responde `401`; `useMision` llama a `expirarSesion()` y se muestra el modal. El backend devuelve el stock de la carga no confirmada al cerrar la sesión.
 
@@ -885,7 +910,7 @@ Todas las respuestas usan `Content-Type: application/json`.
 | Comprobación | Resultado |
 | --- | --- |
 | `npm run lint` | Sin advertencias ni errores |
-| `npm run build` | Correcto, 277 módulos transformados |
+| `npm run build` | Correcto, 279 módulos transformados |
 | `npm run dev` | Levantado en `5199` para probar el proxy |
 | `GET http://localhost:5199/api/inventario` | `200`, proxy correcto hacia `3001` |
 
@@ -1034,6 +1059,34 @@ Archivos modificados en esta fase:
 - `client/src/assets/` (eliminado)
 - `client/public/icons.svg` (eliminado)
 - `README.md`
+
+### Fase 4 — Actualización visual (27 de octubre de 2026)
+
+Se actualizó el frontend sin cambiar hooks, API, backend ni reglas de negocio.
+
+- Marca: **Cherry Team** como empresa y **AstroLogistics** como producto/misión.
+- Logo: `favicon.svg` en la cabecera y en el parche de misión.
+- Tema claro editorial: Cinzel para títulos, Poppins para interfaz, métricas monoespaciadas y acento carmesí.
+- Layout: topbar, hero con métricas, catálogo en grid y bodega sticky en escritorio.
+- Estados visuales: ventana por cerrar, misión confirmada, sesión expirada, error y éxito.
+- Accesibilidad: foco visible, etiquetas ARIA en los controles, `aria-live`, `prefers-reduced-motion` y diseño responsive.
+- Reactstrap se mantiene solo para el modal; el resto usa markup semántico y CSS propio.
+- Bootstrap se importa antes de `index.css` en `main.jsx` para que el reset y los tokens tengan prioridad.
+
+Archivos modificados o creados:
+
+- `client/index.html`
+- `client/src/index.css`
+- `client/src/App.css` (nuevo)
+- `client/src/App.jsx`
+- `client/src/main.jsx`
+- `client/src/components/HeaderMision.jsx`
+- `client/src/components/MissionPatch.jsx` (nuevo)
+- `client/src/components/CatalogoBase.jsx`
+- `client/src/components/BodegaCarga.jsx`
+- `README.md`
+
+Sin cambios en `client/src/hooks/`, `client/src/api/logistica.js` ni en el backend.
 
 ---
 
