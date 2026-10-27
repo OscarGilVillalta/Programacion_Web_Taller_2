@@ -1,17 +1,19 @@
-const { inventario, cargaNave, timerLanzamiento } = require('../data/moldeInventario');
+const data = require('../data/moldeInventario');
+const { inventario, cargaNave } = data;
 
 // Declarar tiempo limite en milisegundos
 const tiempoLimite = 300000;
 
 // Asegurarse de que se este dentro del limite de tiempo
+// Se lee data.timerLanzamiento en cada llamada para que el reinicio sea efectivo
 const tiempoLanzamientoActivo = () => {
-    const tiempoTranscurrido = Date.now() - timerLanzamiento;
+    const tiempoTranscurrido = Date.now() - data.timerLanzamiento;
     return tiempoTranscurrido < tiempoLimite;
 };
 
 // Tiempo restante para contador en el front end
 const obtenerSegundosRestantes = () => {
-    const tiempoTranscurrido = Date.now() - timerLanzamiento;
+    const tiempoTranscurrido = Date.now() - data.timerLanzamiento;
     const restanteMs = tiempoLimite - tiempoTranscurrido;
     return restanteMs > 0 ? Math.floor(restanteMs / 1000) : 0;
 };

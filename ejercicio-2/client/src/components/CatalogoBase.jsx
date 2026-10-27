@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, CardBody, CardTitle, CardText, Button, Badge } from 'reactstrap';
 
-const CatalogoBase = ({ inventario = [], onAgregarItem, cargandoId }) => {
+const CatalogoBase = ({ inventario = [], onAgregarItem, cargandoId, bloqueado, misionConfirmada }) => {
   return (
     <div>
       <h3 className="mb-3 text-secondary">🌌 Catálogo de la Base Espacial</h3>
@@ -36,12 +36,18 @@ const CatalogoBase = ({ inventario = [], onAgregarItem, cargandoId }) => {
 
                     <Button
                       color={sinStock ? "secondary" : "primary"}
-                      disabled={sinStock || estaCargando}
+                      disabled={sinStock || bloqueado || misionConfirmada}
                       block
                       size="sm"
                       onClick={() => onAgregarItem(suministro.id)}
                     >
-                      {estaCargando ? "Calculando..." : sinStock ? "Agotado en Base" : "Añadir a la Nave"}
+                      {misionConfirmada
+                        ? "Misión confirmada"
+                        : estaCargando
+                          ? "Calculando..."
+                          : sinStock
+                            ? "Agotado en Base"
+                            : "Añadir a la Nave"}
                     </Button>
                   </div>
                 </CardBody>

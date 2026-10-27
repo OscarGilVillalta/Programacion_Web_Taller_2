@@ -1,37 +1,34 @@
-const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+import axios from 'axios'
 
-async function request(path, options) {
-  let response;
+// Por defecto usamos /api para pasar por el proxy de Vite.
+// VITE_API_URL permite apuntar a un backend distinto.
+const API_BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
-  try {
-    response = await fetch(`${API_BASE}${path}`, options);
-  } catch {
-    throw new Error('No se pudo conectar con el servidor.');
-  }
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: { 'Content-Type': 'application/json' },
+})
 
-  const data = await response.json().catch(() => null)
+export const obtenerInventario = async () =>
+  (await api.get('/inventario')).data
 
-  if (!response.ok) {
-    const error = new Error(
-      data?.message ?? 'El servidor rechazó la solicitud.',
-    )
-    error.status = response.status;
-    throw error;
-  }
+export const obtenerCarga = async () =>
+  (await api.get('/carga')).data
 
-  return data;
-}
+export const agregarSuministro = async (equipoId, cantidad = 1) =>
+  (await api.post('/carga/agregar', { equipoId, cantidad })).data
 
-export function ajustarTemperatura(temperatura) {
-  return request('/routes/adjust', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ temperatura }),
-  });
-}
+export const actualizarUnidades = async (id, cantidad) =>
+  (await api.put(`/carga/actualizar-unidades/${id}`, { cantidad })).data
 
-export function reiniciarReactor() {
-  return request('/routes/reboot', {
-    method: 'POST',
-  });
-}
+export const eliminarSuministro = async (id) =>
+  (await api.delete(`/carga/eliminar/${id}`)).data
+
+export const obtenerTiempo = async () =>
+  (await api.get('/sesion/tiempo')).data
+
+export const confirmarCarga = async () =>
+  (await api.post('/carga/confirmar')).data
+
+export const reiniciarSesion = async () =>
+  (await api.post('/sesion/reiniciar')).data
