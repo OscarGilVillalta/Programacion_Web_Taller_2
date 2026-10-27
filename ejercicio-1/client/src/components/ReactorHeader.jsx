@@ -34,7 +34,7 @@ function ReactorHeader({
               <circle cx="32" cy="32" r="4" />
             </svg>
           </span>
-          <span className="brand__name">Reactor</span>
+          <span className="brand__name">Cherry Team</span>
           <span className="brand__divider" aria-hidden="true">
             /
           </span>
