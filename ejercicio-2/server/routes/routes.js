@@ -6,7 +6,9 @@ const {
     mostrarCarga,
     agregarCarga,
     actualizarUnidades,
-    eliminarCarga
+    eliminarCarga,
+    obtenerTiempo,
+    confirmarCarga
 } = require('../controllers/controllerLogistica.js');
 
 router.get('/inventario', listarInventario);
@@ -14,5 +16,7 @@ router.get('/carga', mostrarCarga);
 router.post('/carga/agregar', agregarCarga);
 router.put('/carga/actualizar-unidades/:id', actualizarUnidades);
 router.delete('/carga/eliminar/:id', eliminarCarga);
+router.get('/sesion/tiempo', obtenerTiempo);
+router.post('/carga/confirmar', confirmarCarga);
 
 module.exports = router;

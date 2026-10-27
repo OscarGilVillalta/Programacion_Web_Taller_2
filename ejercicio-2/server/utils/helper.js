@@ -9,6 +9,13 @@ const tiempoLanzamientoActivo = () => {
     return tiempoTranscurrido < tiempoLimite;
 };
 
+// Tiempo restante para contador en el front end
+const obtenerSegundosRestantes = () => {
+    const tiempoTranscurrido = Date.now() - timerLanzamiento;
+    const restanteMs = tiempoLimite - tiempoTranscurrido;
+    return restanteMs > 0 ? Math.floor(restanteMs / 1000) : 0;
+};
+
 // Calcular el costo del proceso donde se utilice esta funcion
 const calcularTotalProyectado = (idSuministro, nuevaCantidad) => {
     return cargaNave.itemsCargados.reduce((sum, item) => {
@@ -43,6 +50,7 @@ const alcanzaCreditoParaActualizar = (id, nuevaCantidad) => {
 };
 
 module.exports = {
+    obtenerSegundosRestantes,
     tiempoLanzamientoActivo,
     tieneStockSuficiente,
     alcanzaCreditoParaAgregar,
