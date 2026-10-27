@@ -15,17 +15,17 @@ const TemperaturaEstabilizacion = (req, res) => {
     }
 
     if (temperatura > temperaturaEstabilizacion) {
-        return res.json({ 
+        return res.status(200).json({ 
             status: "mas_baja", 
             message: "La temperatura ideal del reactor es más baja",
         });
     } else if (temperatura < temperaturaEstabilizacion) {
-        return res.json({ 
+        return res.status(200).json({ 
             status: "mas_alta", 
             message: "La temperatura ideal del reactor es más alta",
         });
     } else {
-        return res.json({ 
+        return res.status(200).json({ 
             status: "estabilizado", 
             message: "estabilizado" 
         });
@@ -34,7 +34,7 @@ const TemperaturaEstabilizacion = (req, res) => {
 
 const IniciarTemperatura = (req, res) => {
     temperaturaEstabilizacion = Math.floor(Math.random() * 100) + 1;
-    res.json({ 
+    res.status(200).json({ 
         success: true,
         message: "Sistema reiniciado con una nueva temperatura de estabilización." 
     });
