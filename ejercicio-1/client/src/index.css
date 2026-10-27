@@ -1,0 +1,131 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f7f5f0;
+  --ink: #0b0b0d;
+  --muted: #6d6a64;
+  --line: #e4e0d8;
+  --line-strong: #cfc9bd;
+  --crimson: #c24747;
+  --crimson-strong: #d41935;
+  --crimson-soft: rgba(194, 71, 71, 0.08);
+  --font-ui: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  --shadow-soft:
+    0 1px 0 rgba(11, 11, 13, 0.04), 0 24px 60px -48px rgba(11, 11, 13, 0.4);
+
+  color-scheme: light;
+  font: 16px/1.6 var(--font-ui);
+  color: var(--ink);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  color: var(--ink);
+  font: 16px/1.6 var(--font-ui);
+  background:
+    radial-gradient(circle at 12% -8%, rgba(194, 71, 71, 0.06), transparent 30rem),
+    radial-gradient(circle at 92% 6%, rgba(11, 11, 13, 0.035), transparent 26rem),
+    var(--bg);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+h1 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+h2,
+h3,
+h4 {
+  font-family: var(--font-ui);
+  letter-spacing: -0.015em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+::selection {
+  color: #ffffff;
+  background: var(--crimson);
+}
+
+:focus-visible {
+  outline: 2px solid var(--crimson-strong);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

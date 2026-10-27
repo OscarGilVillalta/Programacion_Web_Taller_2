@@ -1,121 +1,186 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
+import HeaderMision from './components/HeaderMision'
+import CatalogoBase from './components/CatalogoBase'
+import BodegaCarga from './components/BodegaCarga'
+import { useMision } from './hooks/useMision'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const ESTILOS_AVISO = {
+  error: {
+    role: 'alert',
+    ariaLive: 'assertive',
+    icono: '!',
+    etiqueta: 'Restricción de misión',
+  },
+  success: {
+    role: 'status',
+    ariaLive: 'polite',
+    icono: '✓',
+    etiqueta: 'Carga confirmada',
+  },
+}
+
+const ANIO_ACTUAL = new Date().getFullYear()
+
+function FeedbackBanner({ tipo, mensaje, onDismiss }) {
+  const estilo = ESTILOS_AVISO[tipo]
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div
+      className={`feedback-banner feedback-banner--${tipo}`}
+      role={estilo.role}
+      aria-live={estilo.ariaLive}
+    >
+      <span className="feedback-banner__icon" aria-hidden="true">
+        {estilo.icono}
+      </span>
+      <div className="feedback-banner__content">
+        <p className="feedback-banner__label">{estilo.etiqueta}</p>
+        <p className="feedback-banner__text">{mensaje}</p>
+      </div>
+      <button
+        type="button"
+        className="feedback-banner__close"
+        onClick={onDismiss}
+        aria-label="Cerrar aviso"
+      >
+        ×
+      </button>
+    </div>
+  )
+}
+
+function App() {
+  const {
+    inventario,
+    carga,
+    error,
+    exitoMensaje,
+    misionConfirmada,
+    bloqueado,
+    cargandoId,
+    confirmando,
+    reiniciando,
+    segundosRestantes,
+    modalSesionExpirada,
+    cerrarError,
+    cerrarExito,
+    agregarItem,
+    actualizarUnidades,
+    eliminarItem,
+    confirmarCarga,
+    reiniciarSesion,
+  } = useMision()
+
+  return (
+    <div className="app-shell">
+      <HeaderMision
+        creditos={carga.creditos}
+        total={carga.total}
+        tiempo={segundosRestantes}
+        misionConfirmada={misionConfirmada}
+        sesionExpirada={modalSesionExpirada}
+      />
+
+      <main className="main">
+        {(error || exitoMensaje) && (
+          <div className="feedback-stack">
+            {error && (
+              <FeedbackBanner
+                tipo="error"
+                mensaje={error}
+                onDismiss={cerrarError}
+              />
+            )}
+            {exitoMensaje && (
+              <FeedbackBanner
+                tipo="success"
+                mensaje={exitoMensaje}
+                onDismiss={cerrarExito}
+              />
+            )}
+          </div>
+        )}
+
+        <div className="console-grid">
+          <CatalogoBase
+            inventario={inventario}
+            onAgregarItem={agregarItem}
+            cargandoId={cargandoId}
+            bloqueado={bloqueado}
+            misionConfirmada={misionConfirmada}
+          />
+
+          <BodegaCarga
+            itemsCargados={carga.itemsCargados}
+            inventario={inventario}
+            onActualizarUnidades={actualizarUnidades}
+            onEliminarItem={eliminarItem}
+            onConfirmarCarga={confirmarCarga}
+            onReiniciarSesion={reiniciarSesion}
+            cargandoId={cargandoId}
+            confirmando={confirmando}
+            reiniciando={reiniciando}
+            bloqueado={bloqueado}
+            misionConfirmada={misionConfirmada}
+          />
         </div>
-        <div>
-          <h1>Get started</h1>
+      </main>
+
+      <footer className="footer">
+        <p className="footer__brand">
+          <strong>Cherry Team</strong>
+          <span aria-hidden="true"> · </span>
+          AstroLogistics
+        </p>
+        <p className="footer__meta">
+          Datos de misión en memoria · {ANIO_ACTUAL}
+        </p>
+      </footer>
+
+      <Modal
+        isOpen={modalSesionExpirada}
+        backdrop="static"
+        centered
+        labelledBy="mission-modal-title"
+        modalClassName="mission-modal"
+        backdropClassName="mission-modal-backdrop"
+        className="mission-modal__dialog"
+        contentClassName="mission-modal__content"
+      >
+        <ModalHeader className="mission-modal__header" tag="div">
+          <p className="eyebrow">Protocolo de emergencia</p>
+          <h2 className="mission-modal__title" id="mission-modal-title">
+            Ventana de lanzamiento cerrada
+          </h2>
+        </ModalHeader>
+
+        <ModalBody className="mission-modal__body">
+          <span className="mission-modal__mark" aria-hidden="true">
+            !
+          </span>
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            El tiempo de preparación del transbordador ha concluido y la sesión
+            ha expirado.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+          <p className="mission-modal__note">
+            Toda la carga fue desembarcada automáticamente para evitar sobrepeso
+            crítico.
+          </p>
+        </ModalBody>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <ModalFooter className="mission-modal__footer">
+          <button
+            type="button"
+            className="button-primary"
+            disabled={reiniciando}
+            onClick={reiniciarSesion}
+          >
+            {reiniciando ? 'Iniciando...' : 'Iniciar nueva misión'}
+          </button>
+        </ModalFooter>
+      </Modal>
+    </div>
   )
 }
 
