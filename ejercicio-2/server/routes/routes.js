@@ -8,6 +8,7 @@ const {
     actualizarUnidades,
     eliminarCarga,
     obtenerTiempo,
+    reiniciarSesion,
     confirmarCarga
 } = require('../controllers/controllerLogistica.js');
 
@@ -17,6 +18,7 @@ router.post('/carga/agregar', agregarCarga);
 router.put('/carga/actualizar-unidades/:id', actualizarUnidades);
 router.delete('/carga/eliminar/:id', eliminarCarga);
 router.get('/sesion/tiempo', obtenerTiempo);
+router.post('/sesion/reiniciar', reiniciarSesion);
 router.post('/carga/confirmar', confirmarCarga);
 
 module.exports = router;

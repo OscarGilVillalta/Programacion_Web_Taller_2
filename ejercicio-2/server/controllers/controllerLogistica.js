@@ -1,6 +1,19 @@
 const data = require('../data/moldeInventario.js');
 const helper = require('../utils/helper.js');
 
+// Validaciones de cantidades e identificadores
+const esEnteroPositivo = (valor) => Number.isInteger(valor) && valor > 0;
+const esEnteroNoNegativo = (valor) => Number.isInteger(valor) && valor >= 0;
+
+const rechazarSiMisionConfirmada = (res) => {
+    if (!data.cargaNave.confirmada) return false;
+
+    res.status(409).json({
+        mensaje: "La misión ya fue confirmada. Reinicie para abrir una nueva ventana."
+    });
+    return true;
+};
+
 const forzarCierreSesion = () => {
     data.cargaNave.itemsCargados.forEach(item => {
         const suministro = data.inventario.find(i => i.id === item.id);
@@ -48,7 +61,18 @@ const agregarCarga = (req, res) => {
         });
     }
 
-    const { equipoId, cantidad } = req.body;
+    const { equipoId, cantidad } = req.body ?? {};
+
+    if (rechazarSiMisionConfirmada(res)) return;
+
+    if (!esEnteroPositivo(equipoId)) {
+        return res.status(400).json({ mensaje: "Identificador de suministro inválido. Debe ser un entero positivo." });
+    }
+
+    if (!esEnteroPositivo(cantidad)) {
+        return res.status(400).json({ mensaje: "Cantidad inválida. Debe ser un entero mayor que cero." });
+    }
+
     const suministro = data.inventario.find(i => i.id === equipoId);
 
     if (!suministro) {
@@ -85,9 +109,19 @@ const actualizarUnidades = (req, res) => {
         });
     }
 
-    const id = parseInt(req.params.id);
-    const { cantidad } = req.body;
-  
+    const id = Number(req.params.id);
+    const { cantidad } = req.body ?? {};
+
+    if (rechazarSiMisionConfirmada(res)) return;
+
+    if (!esEnteroPositivo(id)) {
+        return res.status(400).json({ mensaje: "Identificador de suministro inválido. Debe ser un entero positivo." });
+    }
+
+    if (!esEnteroNoNegativo(cantidad)) {
+        return res.status(400).json({ mensaje: "Cantidad inválida. Debe ser un entero mayor o igual a cero." });
+    }
+
     const suministro = data.inventario.find(i => i.id === id);
     const itemEnCarga = data.cargaNave.itemsCargados.find(i => i.id === id);
 
@@ -129,6 +163,8 @@ const eliminarCarga = (req, res) => {
     const suministro = data.inventario.find(i => i.id === id);
     const itemEnCarga = data.cargaNave.itemsCargados.find(i => i.id === id);
 
+    if (rechazarSiMisionConfirmada(res)) return;
+
     if (!itemEnCarga) {
         return res.status(404).json({ mensaje: "El suministro no esta en la nave" });
     }
@@ -149,9 +185,11 @@ const obtenerTiempo = (req, res) => {
 
 
 const reiniciarSesion = (req, res) => {
+    // Devuelve al inventario todo lo cargado antes de abrir una nueva ventana
+    forzarCierreSesion();
+    data.cargaNave.creditos = data.CREDITOS_INICIALES;
+    data.cargaNave.confirmada = false;
     data.timerLanzamiento = Date.now();
-    data.cargaNave.itemsCargados = [];
-    data.cargaNave.total = 0.00;
     res.json({ mensaje: "Nueva ventana de lanzamiento abierta.", carga: data.cargaNave });
 };
 
@@ -163,13 +201,28 @@ const confirmarCarga = (req, res) => {
         });
     }
 
+    if (rechazarSiMisionConfirmada(res)) return;
+
     if (data.cargaNave.itemsCargados.length === 0) {
         return res.status(400).json({ mensaje: "No se puede confirmar un cargamento sin suministros a bordo." });
     }
 
+    const totalConfirmado = Number(data.cargaNave.total.toFixed(2));
+    const itemsConfirmados = data.cargaNave.itemsCargados.map(item => ({ ...item }));
+
+    data.cargaNave.creditos = Number((data.cargaNave.creditos - totalConfirmado).toFixed(2));
+    data.cargaNave.itemsCargados = [];
+    data.cargaNave.total = 0.00;
+    data.cargaNave.confirmada = true;
+
     res.json({ 
         mensaje: "¡Cargamento confirmado! Suministros asegurados y nave autorizada para despegar.",
-        resumen: data.cargaNave 
+        resumen: {
+            itemsCargados: itemsConfirmados,
+            total: totalConfirmado,
+            creditosRestantes: data.cargaNave.creditos
+        },
+        carga: data.cargaNave
     });
 };
 
